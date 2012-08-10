@@ -1,0 +1,176 @@
+<apex:page controller="RemoteActionDemoController" tabStyle="Battle__c">
+	
+	<apex:includeScript value="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" />
+	
+	<apex:sectionHeader title="Ready..." subtitle="Fight!" />
+
+	<style>
+		.picture {
+			display: block;
+			margin: 0px auto;
+			height: 150px;
+			width: 150px;
+		}
+	</style>
+
+	<script>
+		
+		j$ = jQuery.noConflict();
+		var combatant1Block;
+		var combatant2Block;
+		var combatants;
+		
+		var combatant1, combatant2, battle;
+		
+		j$(document).ready(function() {
+			
+			//j$('#container').hide();
+			combatant1Block = j$('.combatant1');
+			combatant2Block = j$('.combatant2');  
+			
+			 Visualforce.remoting.Manager.invokeAction(
+        		'{!$RemoteAction.RemoteActionDemoController.loadCombatantOptions}',
+        		function(result, event) {
+          			combatants = result;
+          			selectCombatants();
+        		}
+        	);
+        	
+        	j$('.winButton').on('click', function(event) {
+        		$this = j$(this);
+        		$sfid = $this.attr('data-sfid');
+        		battle = { Winner__c : $sfid };
+        		if($sfid == combatant1.Id) battle.Loser__c = combatant2.Id;
+        		else battle.Loser__c = combatant1.Id;
+        		
+        		Visualforce.remoting.Manager.invokeAction(
+	        		'{!$RemoteAction.RemoteActionDemoController.saveBattle}',
+	        		battle,
+	        		function(result, event) {
+	          			console.log(result);
+	        		}
+	        	);
+	        	
+	        	selectCombatants();
+        		
+        	});
+			
+		});
+		
+		function selectCombatants() {
+			
+			var combatantMaxIndex = combatants.length - 1;
+
+			randomInt = getRandom(combatantMaxIndex, null);
+			combatant1 = combatants[randomInt];
+			
+			excluded = [ randomInt ];		
+			
+			randomInt = getRandom(combatantMaxIndex, excluded);
+			combatant2 = combatants[randomInt];
+			
+			console.log('combatant1');
+			console.log(combatant1);
+			console.log('combatant2');
+			console.log(combatant2);
+			
+			renderCombatants();
+			
+		}
+		
+		function renderCombatants() {
+		
+			combatant1Block.find('h2.mainTitle').text(combatant1.Name);
+			combatant1Block.find('.description').text(combatant1.Description__c);
+			combatant1Block.find('.picture').attr('src', combatant1.Picture__c);
+			combatant1Block.find('.winButton').attr('data-sfid', combatant1.Id);
+			
+			combatant2Block.find('h2.mainTitle').text(combatant2.Name);
+			combatant2Block.find('.description').text(combatant2.Description__c);
+			combatant2Block.find('.picture').attr('src', combatant2.Picture__c);
+			combatant2Block.find('.winButton').attr('data-sfid', combatant2.Id);
+			
+		}
+		
+		function getRandom(max, excluded) {
+		
+			console.log('getRandom');
+			console.log('max param:' + max);
+			console.log('excluded param:' + excluded);
+		
+			if(excluded == null) excluded = [];
+			
+			var random;
+			var randomInt;
+			var exit = false;
+			
+			while(!exit) {
+				random = Math.random() * max;
+				console.log('random:' + random);
+				if(new Date().getMilliseconds() % 2 == 0) randomInt = parseInt(Math.ceil(random));
+				else randomInt = parseInt(Math.floor(random));
+				
+				exit = j$.inArray(randomInt, excluded) == -1;
+				if(exit) exit = randomInt <= max;
+				
+				console.log('randomInt:' + randomInt);
+				console.log('randomInt > max:' + (randomInt > max));
+				console.log('j$.inArray(excluded, randomInt): ' + j$.inArray(excluded, randomInt));
+				
+			} 
+			console.log('randomInt at exit:' + randomInt);
+			return randomInt;
+			
+		}
+	</script>
+	
+	<div id="container">
+		<apex:pageBlock id="battleBlock">
+			
+			<apex:pageBlockSection columns="2">
+				
+				<apex:pageBlockSectionItem >
+					<apex:outputPanel layout="block" styleClass="combatant1">
+						<apex:pageBlock title="COMBATANT1">
+							<apex:pageBlockButtons location="bottom">
+								<input type="button" class="winButton" value="WINNER!" />
+							</apex:pageBlockButtons>
+							<apex:pageBlockSection columns="1">
+								<apex:pageBlockSectionItem >
+									<img class="picture" />
+								</apex:pageBlockSectionItem>
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="Description" />
+									<apex:outputText styleClass="description" />
+								</apex:pageBlockSectionItem>		
+							</apex:pageBlockSection>
+						</apex:pageBlock>
+					</apex:outputPanel>
+				</apex:pageBlockSectionItem>
+				
+				<apex:pageBlockSectionItem >
+					<apex:outputPanel layout="block" styleClass="combatant2">
+						<apex:pageBlock title="COMBATANT2">
+							<apex:pageBlockButtons location="bottom">
+								<input type="button" class="winButton" value="WINNER!" />
+							</apex:pageBlockButtons>
+							<apex:pageBlockSection columns="1">
+								<apex:pageBlockSectionItem >
+									<img class="picture" />
+								</apex:pageBlockSectionItem>
+								<apex:pageBlockSectionItem >
+									<apex:outputLabel value="Description" />
+									<apex:outputText styleClass="description" />
+								</apex:pageBlockSectionItem>
+							</apex:pageBlockSection>
+						</apex:pageBlock>
+					</apex:outputPanel>
+				</apex:pageBlockSectionItem>
+				
+			</apex:pageBlockSection>
+			
+		</apex:pageBlock>
+	
+	</div>
+	
+</apex:page>
