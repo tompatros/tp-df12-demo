@@ -8,12 +8,14 @@
 	    <apex:stylesheet value="https://s3.amazonaws.com/redargyle/web/bootstrap/v2.0.1/css/bootstrap-responsive.min.css" />
 	    <apex:stylesheet value="https://s3.amazonaws.com/redargyle/web/jqueryUI/css/Bootstrap-theme/jquery-ui-1.8.16.custom.css" />
 	    <apex:stylesheet value="https://s3.amazonaws.com/redargyle/web/jqueryUI/css/Bootstrap-theme/jquery.ui.1.8.16.ie.css" />
+	    <apex:includeScript value="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" />
 	    <apex:includeScript value="https://s3.amazonaws.com/redargyle/web/underscore/1.3.3/underscore-min.js" />
 	    <apex:includeScript value="https://s3.amazonaws.com/redargyle/web/backbone/backbone.0.9.2.js" />
 	    <apex:includeScript value="https://s3.amazonaws.com/redargyle/web/handlebars/handlebars-1.0.0.beta.6.js" />
-	    <apex:includeScript value="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" />
 	    <apex:includeScript value="https://s3.amazonaws.com/redargyle/web/bootstrap/v2.0.1/js/bootstrap.min.js" />
 	    <apex:includeScript value="https://s3.amazonaws.com/redargyle/web/jqueryUI/js/jquery-ui-1.8.18.custom.min.js" />
+	    <apex:includeScript value="{!$Page.backbone_model_generator}?types=Battle__c" />
+	    <apex:includeScript value="{!$Page.backbone_model_generator}?types=Combatant__c" />
 		
 		<style>
 			
@@ -24,17 +26,106 @@
 				height: 200px;
 				width: 200px;
 				border: solid 1px #000;
-			}
+			}  
 			
 		</style>
 	
 		<script>
 			
-			
-			var combatants, combatant1, combatant2, battle, combatantTemplate, modalHistoryTemplate;
+			var battleTemplateSource, combatants, battleCollection, battle, battleView;
 			
 			$(document).ready(function() {
 				
+				battleTemplateSource = $("#battle-template").html();
+				combatants = new PageCombatantCollection();
+				combatants.reset({!combatantsJSON});
+				
+				battleCollection = new PageBattleCollection();
+				battleCollection.combatants = combatants;
+				
+				battleCollection.on('add', function(battle) {
+				
+					battle.combatants = this.combatants;
+					
+					battleView = new PageBattleView({ 
+						el : $('#battleContainer'),
+						model : battle
+					});
+					
+					battle.chooseCombatants();
+					
+				});
+				
+				battleCollection.add({});
+				
+			});
+			
+			var combatant1, combatant2, combatantTemplate, modalHistoryTemplate;
+			
+			var PageBattleView = Backbone.View.extend({  
+				initialize: function(options) {
+					this.model.view = this;
+				},
+				render: function() {
+					var $template = Handlebars.compile(battleTemplateSource);
+					var $html = $template(this.model);
+					$(this.el).html($html); 
+					return this;
+				},
+				events: {
+					"click .btn-combatant1-winner"	: "setWinnerCombatant1",
+					"click .btn-combatant2-winner"	: "setWinnerCombatant2"
+				},
+				setWinnerCombatant1: function() {
+					this.model.chooseWinner(this.model.combatant1);
+				},
+				setWinnerCombatant2: function() {
+					this.model.chooseWinner(this.model.combatant2);
+				}
+			});      
+			
+			var PageBattle = Battle__c.extend({
+				combatant1 : null,
+				combatant2 : null,
+				combatants : null,
+				view : null,
+				chooseCombatants: function() {
+					this.combatant1 = this.combatants.selectRandom();
+					do {  
+						this.combatant2 = this.combatants.selectRandom();
+					} while(this.combatant1 === this.combatant2);
+					this.view.render();
+				},
+				chooseWinner: function(winner) {
+					this.set('Winner__c', winner.attributes.Id);
+					if(winner === this.combatant1) this.set('Loser__c', this.combatant2.attributes.Id);
+					else this.set('Loser__c', this.combatant1.attributes.Id); 
+					this.save({}, {
+						success: function(model, response) { 
+							console.log('yay');
+						},
+						error: function(model, response) {
+							console.log('so sad...');
+						}
+							
+					});
+				}
+			});
+			
+			var PageBattleCollection = Battle__cCollection.extend({
+				model : PageBattle
+			});
+			
+			var PageCombatantCollection = Combatant__cCollection.extend({
+				selectRandom : function() {
+					var shuffled = _.shuffle(this.models);
+					return _.first(shuffled);
+				}
+			});
+			
+			/*
+			$(document).ready(function() {
+				   
 				var records = [];
 				// sot = fail
 				// sobjectType = fail
@@ -47,16 +138,20 @@
 				// Sobjecttype = fail
 				// {"attributes":{"type":"Account"},"Name":"foo"}
 				
-				records.push({"attributes":{"type":"Account"},"Name":"foo"});
+				//records.push({"attributes":{"type":"Account"},"Name":"foo"});
+				//records.push({"attributes":{"sobjectType":"Account"},"Name":"foo"});
+				records.push({"sobjectType":"Account","Name":"foo"});
+				//records.push({"id":"001E000000KEA4A","Name":"foo"});
 				
 				Visualforce.remoting.Manager.invokeAction(
-	        		'{!$RemoteAction.SinglePageAppDemoController.save}',
+	        		'',
 	        		records,
 	        		function(result, event) {
 	          			combatants = result;
 	          			selectCombatants();
 	        		}
 	        	);
+	        	
 				
 				$('#modal-container').modal('hide');
 				
@@ -65,7 +160,8 @@
 				
 				var modalHistoryTemplateSource = $("#modal-history-template").html();
 				modalHistoryTemplate = Handlebars.compile(modalHistoryTemplateSource);
-					
+				
+				
 				Visualforce.remoting.Manager.invokeAction(
 	        		'{!$RemoteAction.SinglePageAppDemoController.loadCombatants}',
 	        		function(result, event) {
@@ -74,23 +170,9 @@
 	        		}
 	        	);
 	        	
+	        	
 			});
-			
-			function selectCombatants() {
-				
-				var combatantMaxIndex = combatants.length - 1;
-	
-				randomInt = getRandom(combatantMaxIndex, null);
-				combatant1 = combatants[randomInt];
-				
-				excluded = [ randomInt ];		
-				
-				randomInt = getRandom(combatantMaxIndex, excluded);
-				combatant2 = combatants[randomInt];
-				
-				renderCombatants();
-				
-			}
+			*/
 			
 			function renderCombatants() {
 			
@@ -107,7 +189,7 @@
 	        		else battle.Loser__c = combatant1.Id;
 	        		
 	        		Visualforce.remoting.Manager.invokeAction(
-		        		'{!$RemoteAction.SinglePageAppDemoController.saveBattle}',
+		        		'',
 		        		battle,
 		        		function(result, event) {
 		          			console.log(result);
@@ -142,32 +224,6 @@
 				$("#modal-container").modal('show');
 			}
 			
-			function getRandom(max, excluded) {
-			
-				console.log('getRandom');
-				console.log('max param:' + max);
-				console.log('excluded param:' + excluded);
-			
-				if(excluded == null) excluded = [];
-				
-				var random;
-				var randomInt;
-				var exit = false;
-				
-				while(!exit) {
-					random = Math.random() * max;
-					console.log('random:' + random);
-					if(new Date().getMilliseconds() % 2 == 0) randomInt = parseInt(Math.ceil(random));
-					else randomInt = parseInt(Math.floor(random));
-					
-					exit = $.inArray(randomInt, excluded) == -1;
-					if(exit) exit = randomInt <= max;
-					
-				} 
-				
-				return randomInt;
-				
-			}
 		</script>
 		
 	</head>
@@ -180,36 +236,68 @@
 				</div>
 				<h1>DF12 Demo Battle</h1>
 			</div>
+			<div id="battleContainer" class="row">BLAH</div>
 			<div class="row combatants-row"></div>
 			<div class="modal fade hide" id="modal-container"></div>
 		</div>
 		
-		
+		<script id="battle-template" type="text/x-handlebars-template">
+			<div class="span12 battle">
+				<div class="row">
+					<div class="span5 combatant">
+						<div class="well">
+							<h2>{{combatant1.attributes.Name}}</h2>
+							{{#if combatant1.attributes.Picture__c}}
+								<img src="{{combatant1.atttributes.Picture__c}}" />
+							{{/if}}
+							<hr />
+							<div class="description">{{combatant1.attributes.Description__c}}</div>
+							<hr />
+							<button style="float: right;" class="btn btn-large btn-success btn-combatant1-winner">Winner!</button>
+							<button style="float: left;" class="btn btn-large btn-history">History</button>
+							<br style="clear: both;" />
+						</div>
+					</div>
+					<div class="span2">
+						<h1 style="text-align: center;">VS.</h1>
+					</div>
+					<div class="span5 combatant">
+						<div class="well">
+							<h2>{{combatant2.attributes.Name}}</h2>
+							{{#if combatant2.attributes.Picture__c}}
+								<img src="{{combatant2.attributes.Picture__c}}" />
+							{{/if}}
+							<hr />
+							<div class="description">{{combatant2.attributes.Description__c}}</div>
+							<hr />
+							<button style="float: right;" class="btn btn-large btn-success btn-combatant2-winner">Winner!</button>
+							<button style="float: left;" class="btn btn-large btn-history">History</button>
+							<br style="clear: both;" />
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</script>
 		
 		<script id="combatant-template" type="text/x-handlebars-template">
-		<div class="span5 combatant">
-			<div class="well">
-				<h2>{{Name}}</h2>
-				{{#if Picture__c}}
-					<img src="{{Picture__c}}" />
-				{{/if}}
-				<hr />
-				<div class="description">{{Description__c}}</div>
-				<hr />
-				<button data-sfid="{{Id}}" style="float: right;" class="btn btn-large btn-success btn-winner">Winner!</button>
-				<button data-sfid="{{Id}}" style="float: left;" class="btn btn-large btn-history">History</button>
-				<br style="clear: both;" />
+			<div class="span5 combatant">
+				<div class="well">
+					<h2>{{Name}}</h2>
+					{{#if Picture__c}}
+						<img src="{{Picture__c}}" />
+					{{/if}}
+					<hr />
+					<div class="description">{{Description__c}}</div>
+					<hr />
+					<button data-sfid="{{Id}}" style="float: right;" class="btn btn-large btn-success btn-winner">Winner!</button>
+					<button data-sfid="{{Id}}" style="float: left;" class="btn btn-large btn-history">History</button>
+					<br style="clear: both;" />
+				</div>
 			</div>
-		</div>
-	</script>
+		</script>
 		
-		<script id="vs-template" type="text/x-handlebars-template">
-		<div class="span2">
-			<h1 style="text-align: center;">VS.</h1>
-		</div>
-	</script>
-		
-		<script id="modal-history-template">
+		<script id="modal-history-template" type="text/x-handlebars-template">
 			<div class="modal-header">
 				<h3>History</h3>
 			</div>

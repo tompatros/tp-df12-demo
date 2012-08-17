@@ -15,6 +15,13 @@ public with sharing class SinglePageAppDemoController {
 		
 	}
 	
+	public String combatantsJSON {
+		get {
+			List<Combatant__c> combatants = loadCombatants();
+			return JSON.serialize(combatants);
+		}
+	}
+	
 	@RemoteAction
 	public static Combatant__c saveCombatant(Combatant__c combatant) {
 		upsert combatant;
@@ -22,9 +29,9 @@ public with sharing class SinglePageAppDemoController {
 	}
 	
 	@RemoteAction
-	public static Battle__c saveBattle(Battle__c battle) {
-		insert battle;
-		return battle;
+	public static List<Battle__c> insertBattleRecords(List<Battle__c> battles) {
+		insert battles;
+		return battles;
 	}
 	
 	@RemoteAction
@@ -62,11 +69,9 @@ public with sharing class SinglePageAppDemoController {
 	}
 	
 	@RemoteAction
-	public static List<sObject> save(List<sObject> records) {
-		upsert records;
+	public static List<sObject> updateRecords(List<sObject> records) {
+		update records;
 		return records;
 	}
-
-		
 
 }

@@ -1,0 +1,54 @@
+<apex:page cache="false" expires="0" showHeader="false" standardStylesheets="false" contentType="text/javascript" controller="BackboneModelGeneratorController">
+<apex:repeat value="{!models}" var="m">
+var {!m.name} = Backbone.Model.extend({
+	salesforceFields : {!m.fieldsJSON},
+	defaults : {!m.defaultsJSON},
+	sync : function(method, model, options) {
+	
+		var record = model.attributes;
+		var records = [record];
+	
+		if(method == 'create') {
+		
+			var successCallback = options.success;
+			var errorCallback = options.error;
+		
+			Visualforce.remoting.Manager.invokeAction(
+        		'SinglePageAppDemoController.insert{!m.cleanedName}Records',
+        		records,
+        		function(result, event) {
+        			if(event.status) {
+        				successCallback(event);
+        			}
+        			else {
+        				// TODO
+        				// errorCallback(event);
+        			}
+        		}
+        	);
+		}
+		else if(method == 'update') {
+		
+			Visualforce.remoting.Manager.invokeAction(
+				'SinglePageAppDemoController.updateRecords',
+        		records,
+        		function(result, event) {
+        			// TODO
+        		}
+        	);
+		
+		}
+	},
+	parse: function(response) {
+		// the response is the "event" parameter return from the remoteAction callback
+		// because this is a model, we want to pass back the first index of response.result
+		// this contains the attributes that will be set() back on the model 
+		console.log(response);
+		return response.result[0] || {};
+	}
+});
+
+var {!m.name}Collection = Backbone.Collection.extend({model : {!m.name}});
+
+</apex:repeat>
+</apex:page>
