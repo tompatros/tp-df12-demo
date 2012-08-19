@@ -68,10 +68,4 @@ public with sharing class SinglePageAppDemoController {
 		return battles;
 	}
 	
-	@RemoteAction
-	public static List<sObject> updateRecords(List<sObject> records) {
-		update records;
-		return records;
-	}
-
 }

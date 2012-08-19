@@ -19,6 +19,10 @@
 		
 		<style>
 			
+			.combatant .well {
+				min-height: 400px;
+			}
+			
 			.combatant img {
 				display: block;
 				margin: 0px auto;
@@ -32,7 +36,7 @@
 	
 		<script>
 			
-			var battleTemplateSource, combatants, battleCollection, battle, battleView;
+			var battleTemplateSource, combatants, battleCollection, battleView;
 			
 			$(document).ready(function() {
 				
@@ -48,7 +52,6 @@
 					battle.combatants = this.combatants;
 					
 					battleView = new PageBattleView({ 
-						el : $('#battleContainer'),
 						model : battle
 					});
 					
@@ -60,8 +63,6 @@
 				
 			});
 			
-			var combatant1, combatant2, combatantTemplate, modalHistoryTemplate;
-			
 			var PageBattleView = Backbone.View.extend({  
 				initialize: function(options) {
 					this.model.view = this;
@@ -70,6 +71,7 @@
 					var $template = Handlebars.compile(battleTemplateSource);
 					var $html = $template(this.model);
 					$(this.el).html($html); 
+					$('#battleOuterContainer').html('').append($(this.el));;
 					return this;
 				},
 				events: {
@@ -81,6 +83,9 @@
 				},
 				setWinnerCombatant2: function() {
 					this.model.chooseWinner(this.model.combatant2);
+				},
+				changeModel: function(model) {
+					
 				}
 			});      
 			
@@ -102,7 +107,10 @@
 					else this.set('Loser__c', this.combatant1.attributes.Id); 
 					this.save({}, {
 						success: function(model, response) { 
-							console.log('yay');
+							model.view = null;
+							battleView.remove();
+							battleView.unbind();
+							battleCollection.add({});
 						},
 						error: function(model, response) {
 							console.log('so sad...');
@@ -124,56 +132,6 @@
 			});
 			
 			/*
-			$(document).ready(function() {
-				   
-				var records = [];
-				// sot = fail
-				// sobjectType = fail
-				// sObjectType = fail
-				// sobjecttype = fail
-				// SObjectType = fail
-				// SobjectType = fail
-				// SObjecttype = fail
-				// SObjecttype = fail
-				// Sobjecttype = fail
-				// {"attributes":{"type":"Account"},"Name":"foo"}
-				
-				//records.push({"attributes":{"type":"Account"},"Name":"foo"});
-				//records.push({"attributes":{"sobjectType":"Account"},"Name":"foo"});
-				records.push({"sobjectType":"Account","Name":"foo"});
-				//records.push({"id":"001E000000KEA4A","Name":"foo"});
-				
-				Visualforce.remoting.Manager.invokeAction(
-	        		'',
-	        		records,
-	        		function(result, event) {
-	          			combatants = result;
-	          			selectCombatants();
-	        		}
-	        	);
-	        	
-				
-				$('#modal-container').modal('hide');
-				
-				var combatantTemplateSource = $("#combatant-template").html();
-				combatantTemplate = Handlebars.compile(combatantTemplateSource);
-				
-				var modalHistoryTemplateSource = $("#modal-history-template").html();
-				modalHistoryTemplate = Handlebars.compile(modalHistoryTemplateSource);
-				
-				
-				Visualforce.remoting.Manager.invokeAction(
-	        		'{!$RemoteAction.SinglePageAppDemoController.loadCombatants}',
-	        		function(result, event) {
-	          			combatants = result;
-	          			selectCombatants();
-	        		}
-	        	);
-	        	
-	        	
-			});
-			*/
-			
 			function renderCombatants() {
 			
 				var html = combatantTemplate(combatant1);
@@ -224,6 +182,8 @@
 				$("#modal-container").modal('show');
 			}
 			
+			*/
+			
 		</script>
 		
 	</head>
@@ -236,7 +196,7 @@
 				</div>
 				<h1>DF12 Demo Battle</h1>
 			</div>
-			<div id="battleContainer" class="row">BLAH</div>
+			<div id="battleOuterContainer" class="row"></div>
 			<div class="row combatants-row"></div>
 			<div class="modal fade hide" id="modal-container"></div>
 		</div>
@@ -248,7 +208,7 @@
 						<div class="well">
 							<h2>{{combatant1.attributes.Name}}</h2>
 							{{#if combatant1.attributes.Picture__c}}
-								<img src="{{combatant1.atttributes.Picture__c}}" />
+								<img src="{{combatant1.attributes.Picture__c}}" />
 							{{/if}}
 							<hr />
 							<div class="description">{{combatant1.attributes.Description__c}}</div>

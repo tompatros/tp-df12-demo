@@ -10,5 +10,17 @@
         <members>single_page_app_demo</members>
         <name>ApexPage</name>
     </types>
+    <types>
+        <members>*</members>
+        <name>CustomApplication</name>
+    </types>
+    <types>
+        <members>*</members>
+        <name>CustomTab</name>
+    </types>
+    <types>
+        <members>*</members>
+        <name>PermissionSet</name>
+    </types>
     <version>24.0</version>
 </Package>
