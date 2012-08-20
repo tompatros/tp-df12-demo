@@ -1,6 +1,6 @@
 <apex:page controller="ActionFunctionDemoController" tabStyle="Battle__c">
 	
-	<apex:sectionHeader title="Get Ready..." subtitle="Fight!" />
+	<apex:sectionHeader title="Ready..." subtitle="Fight!" />
 	
 	<style>
 		.picture {
