@@ -33,6 +33,8 @@
 	
 		<script>
 			
+			// this comment is radical
+			
 			var battleTemplateSource, combatants, battleCollection, battleView;
 			
 			$(document).ready(function() {
