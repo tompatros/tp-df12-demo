@@ -1,30 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Package xmlns="http://soap.sforce.com/2006/04/metadata">
     <types>
+        <members>ActionFunctionDemoController</members>
         <members>BackboneModelGeneratorController</members>
+        <members>RemoteActionDemoController</members>
         <members>SinglePageAppDemoController</members>
         <name>ApexClass</name>
     </types>
     <types>
+        <members>action_function_demo</members>
         <members>backbone_model_generator</members>
+        <members>remote_action_demo</members>
         <members>single_page_app_demo</members>
         <name>ApexPage</name>
     </types>
     <types>
-        <members>*</members>
+        <members>DF12_Demo_Battle</members>
         <name>CustomApplication</name>
     </types>
     <types>
-        <members>*</members>
+        <members>Battle__c</members>
+        <members>Combatant__c</members>
         <name>CustomObject</name>
     </types>
     <types>
-        <members>*</members>
+        <members>Action_Function_Demo</members>
+        <members>Battle__c</members>
+        <members>Combatant__c</members>
+        <members>Remote_Action_Demo</members>
         <name>CustomTab</name>
     </types>
     <types>
-        <members>*</members>
+        <members>Demo_Battle_App_Users</members>
         <name>PermissionSet</name>
     </types>
-    <version>24.0</version>
+    <version>25.0</version>
 </Package>
