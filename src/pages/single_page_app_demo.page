@@ -33,7 +33,8 @@
 	
 		<script>
 			
-			// this comment is awesome
+			// this comment is awesome.
+			// this comment is also awesome.
 			
 			var battleTemplateSource, combatants, battleCollection, battleView;
 			
