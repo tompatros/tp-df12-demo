@@ -28,6 +28,7 @@
         <members>Battle__c</members>
         <members>Combatant__c</members>
         <members>Remote_Action_Demo</members>
+        <members>Single_Page_App_Demo</members>
         <name>CustomTab</name>
     </types>
     <types>
