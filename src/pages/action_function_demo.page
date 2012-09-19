@@ -13,6 +13,8 @@
 	
 	<apex:form >
 	
+	<!-- THIS IS A COMMENT -->
+	
 	<!-- ######################################## -->
 	<!-- HERE IS THE ACTIONFUNCTION DEFINITION -->
 	<!-- ######################################## -->
