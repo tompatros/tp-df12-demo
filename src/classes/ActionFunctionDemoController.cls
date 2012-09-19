@@ -4,6 +4,9 @@ public with sharing class ActionFunctionDemoController {
 	public Combatant__c combatant1 { get; set; }
 	public Combatant__c combatant2 { get; set; }
 
+	// ########################################
+	// LOAD COMBATANT OPTIONS
+	// ########################################
 	public List<Combatant__c> combatantOptions {
 		get {
 			if(combatantOptions == null) {
@@ -21,10 +24,16 @@ public with sharing class ActionFunctionDemoController {
 		set;
 	}
 
+	// ########################################
+	// CONSTRUCTOR
+	// ########################################
 	public ActionFunctionDemoController() {
 		init();
 	}
 	
+	// ########################################
+	// INIT METHOD - HANDLES COMBATANT SELECTION
+	// ########################################
 	public void init() {
 		
 		battle = new Battle__c();
@@ -45,8 +54,14 @@ public with sharing class ActionFunctionDemoController {
 		
 	}
 	
+	// ########################################
+	// PARAMETER PASSED BY ACTIONFUNCTION TO DECLARE THE WINNER
+	// ########################################
 	public String winnerSFID { get; set; }
 	
+	// ########################################
+	// SAVE BATTLE
+	// ########################################
 	public void saveBattle() {
 		if(winnerSFID == null) return;
 		battle.Winner__c = winnerSFID;
@@ -57,6 +72,9 @@ public with sharing class ActionFunctionDemoController {
 		init();
 	}
 	
+	// ########################################
+	// RANDOM PICKER CLASS
+	// ########################################
 	private Integer getRandom(Integer max, Set<Integer> excluded) {
 		
 		if(excluded == null) excluded = new Set<Integer>();

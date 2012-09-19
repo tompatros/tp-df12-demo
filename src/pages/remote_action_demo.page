@@ -15,6 +15,9 @@
 
 	<script>
 		
+		// ########################################
+		// JQUERY NOCONFLICT
+		// ########################################
 		j$ = jQuery.noConflict();
 		var combatant1Block;
 		var combatant2Block;
@@ -22,12 +25,18 @@
 		
 		var combatant1, combatant2, battle;
 		
+		// ########################################
+		// DOCUMENT READY
+		// ########################################
 		j$(document).ready(function() {
 			
 			//j$('#container').hide();
 			combatant1Block = j$('.combatant1');
 			combatant2Block = j$('.combatant2');  
 			
+			// ########################################
+			// LOAD OUR COMBATANTS
+			// ########################################
 			 Visualforce.remoting.Manager.invokeAction(
         		'{!$RemoteAction.RemoteActionDemoController.loadCombatantOptions}',
         		function(result, event) {
@@ -36,6 +45,9 @@
         		}
         	);
         	
+        	// ########################################
+			// WIN BUTTON CLICK EVENT
+			// ########################################
         	j$('.winButton').on('click', function(event) {
         		$this = j$(this);
         		$sfid = $this.attr('data-sfid');
@@ -43,6 +55,9 @@
         		if($sfid == combatant1.Id) battle.Loser__c = combatant2.Id;
         		else battle.Loser__c = combatant1.Id;
         		
+        		// ########################################
+				// SAVE BATTLE
+				// ########################################
         		Visualforce.remoting.Manager.invokeAction(
 	        		'{!$RemoteAction.RemoteActionDemoController.saveBattle}',
 	        		battle,
@@ -57,6 +72,9 @@
 			
 		});
 		
+		// ########################################
+		// SELECT COMBATANTS HELPER FUNCTION - MAKES SURE WE DON'T GET DUPES
+		// ########################################
 		function selectCombatants() {
 			
 			var combatantMaxIndex = combatants.length - 1;
@@ -78,6 +96,9 @@
 			
 		}
 		
+		// ########################################
+		// RENDERS COMBATANTS INTO STANDARD VF PAGE
+		// ########################################
 		function renderCombatants() {
 		
 			combatant1Block.find('h2.mainTitle').text(combatant1.Name);
@@ -92,6 +113,9 @@
 			
 		}
 		
+		// ########################################
+		// RANDOM FUNCTION FOR SELECTING COMBATANTS
+		// ########################################
 		function getRandom(max, excluded) {
 		
 			console.log('getRandom');
@@ -129,6 +153,9 @@
 			
 			<apex:pageBlockSection columns="2">
 				
+				<!-- ######################################## -->
+				<!-- COMBATANT 1 -->
+				<!-- ######################################## -->
 				<apex:pageBlockSectionItem >
 					<apex:outputPanel layout="block" styleClass="combatant1">
 						<apex:pageBlock title="COMBATANT1">
@@ -148,6 +175,9 @@
 					</apex:outputPanel>
 				</apex:pageBlockSectionItem>
 				
+				<!-- ######################################## -->
+				<!-- COMBATANT 2 -->
+				<!-- ######################################## -->
 				<apex:pageBlockSectionItem >
 					<apex:outputPanel layout="block" styleClass="combatant2">
 						<apex:pageBlock title="COMBATANT2">

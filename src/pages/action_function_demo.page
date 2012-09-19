@@ -13,10 +13,16 @@
 	
 	<apex:form >
 	
+	<!-- ######################################## -->
+	<!-- HERE IS THE ACTIONFUNCTION DEFINITION -->
+	<!-- ######################################## -->
 	<apex:actionFunction action="{!saveBattle}" name="saveBattleJS" rerender="battleBlock" status="saveStatus">
 		<apex:param name="p_winnerSFID" assignTo="{!winnerSFID}" value="" />
 	</apex:actionFunction>
 	
+	<!-- ######################################## -->
+	<!-- HERE IS THE JAVSCRIPT WRAPPER FUNCTION -->
+	<!-- ######################################## -->
 	<script>
 		function winnerClick(winnerSFID) {
 			if(!confirm('Are you sure???')) return;
@@ -24,6 +30,9 @@
 		}
 	</script>
 	
+	<!-- ######################################## -->
+	<!-- STANDARD VF COMPONENTS -->
+	<!-- ######################################## -->
 	<apex:pageBlock id="battleBlock">
 		
 		<apex:pageBlockSection columns="2">
@@ -34,6 +43,9 @@
 			
 			<apex:pageBlockSectionItem >&nbsp;</apex:pageBlockSectionItem>
 			
+			<!-- ######################################## -->
+			<!-- COMBATANT 1 -->
+			<!-- ######################################## -->
 			<apex:pageBlockSectionItem >
 				<apex:pageBlock title="{!combatant1.Name}">
 					<apex:pageBlockButtons location="bottom">
@@ -48,6 +60,9 @@
 				</apex:pageBlock>
 			</apex:pageBlockSectionItem>
 			
+			<!-- ######################################## -->
+			<!-- COMBATANT 2 -->
+			<!-- ######################################## -->
 			<apex:pageBlockSectionItem >
 				<apex:pageBlock title="{!combatant2.Name}">
 					<apex:pageBlockButtons location="bottom">

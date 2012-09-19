@@ -33,11 +33,11 @@
 	
 		<script>
 			
-			// this comment is awesome.
-			// this comment is also awesome.
-			
 			var battleTemplateSource, combatants, battleCollection, battleView;
 			
+			// ########################################
+			// DOCUMENT READY
+			// ########################################
 			$(document).ready(function() {
 				
 				battleTemplateSource = $("#battle-template").html();
@@ -63,6 +63,9 @@
 				
 			});
 			
+			// ########################################
+			// PAGE BATTLE VIEW HANDLES THE RENDERING OF EACH BATTLE
+			// ########################################
 			var PageBattleView = Backbone.View.extend({  
 				initialize: function(options) {
 					this.model.view = this;
@@ -89,12 +92,20 @@
 				}
 			});      
 			
+			// ########################################
+			// PAGE BATTLE MODEL EXTENDS THE Battle__c Backbone Model
+			// ########################################
 			var PageBattle = Battle__c.extend({
 				combatant1 : null,
 				combatant2 : null,
 				combatants : null,
 				view : null,
 				chooseCombatants: function() {
+				
+					// ########################################
+					// CHOOSECOMBATANTS - RESPONSIBLE FOR SELECTING UNIQUE COMBATANTS
+					// ########################################
+				
 					this.combatant1 = this.combatants.selectRandom();
 					do {  
 						this.combatant2 = this.combatants.selectRandom();
@@ -102,6 +113,11 @@
 					this.view.render();
 				},
 				chooseWinner: function(winner) {
+				
+					// ########################################
+					// CHOOSEWINNER - RESPONSIBLE FOR SETTING WINNER
+					// ########################################
+				
 					this.set('Winner__c', winner.attributes.Id);
 					if(winner === this.combatant1) this.set('Loser__c', this.combatant2.attributes.Id);
 					else this.set('Loser__c', this.combatant1.attributes.Id); 
@@ -120,10 +136,17 @@
 				}
 			});
 			
+			// ########################################
+			// PAGE BATTLE COLLECTION EXTENDS THE Battle__cCollection Backbone Collection
+			// ########################################
 			var PageBattleCollection = Battle__cCollection.extend({
 				model : PageBattle
 			});
 			
+			// ########################################
+			// PAGE BATTLE COLLECTION EXTENDS THE Combatant__cCollection Backbone Collection
+			// RESPONSIBLE FOR HANDLING RANDOM SELECTION
+			// ########################################
 			var PageCombatantCollection = Combatant__cCollection.extend({
 				selectRandom : function() {
 					var shuffled = _.shuffle(this.models);
@@ -136,6 +159,9 @@
 	</head>
 	<body>
 	
+		<!-- ######################################## -->
+		<!-- MINIMAL HTML TO START THE PAGE -->
+		<!-- ######################################## -->
 		<div class="container">
 			<div class="page-header">
 				<h1>DF12 Demo Battle</h1>
@@ -145,6 +171,9 @@
 			<div class="modal fade hide" id="modal-container"></div>
 		</div>
 		
+		<!-- ######################################## -->
+		<!-- HANDLEBARS TEMPLATE -->
+		<!-- ######################################## -->
 		<script id="battle-template" type="text/x-handlebars-template">
 			<div class="span12 battle">
 				<div class="row">

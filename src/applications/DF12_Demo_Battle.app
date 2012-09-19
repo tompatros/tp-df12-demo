@@ -6,4 +6,5 @@
     <tab>Battle__c</tab>
     <tab>Action_Function_Demo</tab>
     <tab>Remote_Action_Demo</tab>
+    <tab>Single_Page_App_Demo</tab>
 </CustomApplication>
