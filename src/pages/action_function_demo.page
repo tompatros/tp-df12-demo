@@ -12,21 +12,18 @@
 	</style>
 	
 	<apex:form >
-	
-	<!-- THIS IS A COMMENT -->
-	<!-- THIS IS A COMMENT AGAIN -->
-	
-	<!-- ######################################## -->
+	          
+	<!-- ########################################### -->
 	<!-- HERE IS THE ACTIONFUNCTION DEFINITION -->
 	<!-- ######################################## -->
 	<apex:actionFunction action="{!saveBattle}" name="saveBattleJS" rerender="battleBlock" status="saveStatus">
 		<apex:param name="p_winnerSFID" assignTo="{!winnerSFID}" value="" />
 	</apex:actionFunction>
-	
+	   
 	<!-- ######################################## -->
 	<!-- HERE IS THE JAVSCRIPT WRAPPER FUNCTION -->
 	<!-- ######################################## -->
-	<script>
+	<script>     
 		function winnerClick(winnerSFID) {
 			if(!confirm('Are you sure???')) return;
 			saveBattleJS(winnerSFID);
